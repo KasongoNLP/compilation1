@@ -9,21 +9,9 @@ FICHIER_SORTIE = "checklist.xlsx"
 
 
 compilation = Workbook()
-class interface(ctk.CTk) :
-    def __init__(self) :
-        self.title(APP_NAME)
-        self.geometry("1200x760")
-        self.minsize(1050, 680)
-
-
-
-
-
-
 
 # compilation.remove(compilation.active)
 
-i = interface()
 for fichier in os.listdir(DOSSIER):
 
     if not fichier.endswith((".Xlsx", ".xlsm")):

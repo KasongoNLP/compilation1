@@ -41,33 +41,18 @@ def ouvrir_connexion():
     modal.grab_set()
 
 
+
     # ========================================================
     # TITRE
     # ========================================================
-
-    titre = ctk.CTkLabel(
-        modal,
-        text="Connexion",
-        font=ctk.CTkFont(
-            size=24,
-            weight="bold"
-        )
-    )
-
+    titre = ctk.CTkLabel(modal,text="Connexion",font=ctk.CTkFont(size=24,weight="bold"))
     titre.pack(pady=(25, 15))
 
 
     # ========================================================
     # NOM UTILISATEUR
     # ========================================================
-
-    utilisateur = ctk.CTkEntry(
-        modal,
-        width=260,
-        height=35,
-        placeholder_text="Nom d'utilisateur"
-    )
-
+    utilisateur = ctk.CTkEntry(modal,width=260,height=35,placeholder_text="Nom d'utilisateur")
     utilisateur.pack(pady=5)
 
 
@@ -75,27 +60,14 @@ def ouvrir_connexion():
     # MOT DE PASSE
     # ========================================================
 
-    mot_de_passe = ctk.CTkEntry(
-        modal,
-        width=260,
-        height=35,
-        placeholder_text="Mot de passe",
-        show="*"
-    )
-
+    mot_de_passe = ctk.CTkEntry(modal,width=260,height=35,placeholder_text="Mot de passe",show="*")
     mot_de_passe.pack(pady=5)
 
 
     # ========================================================
     # MESSAGE D'ERREUR
     # ========================================================
-
-    erreur = ctk.CTkLabel(
-        modal,
-        text="",
-        text_color="red"
-    )
-
+    erreur = ctk.CTkLabel(modal,text="",text_color="red")
     erreur.pack(pady=3)
 
 
@@ -111,6 +83,7 @@ def ouvrir_connexion():
         if user == "admin" and password == "1234":
 
             print("Connexion réussie")
+            afficher_accueil()
 
             modal.grab_release()
             modal.destroy()
@@ -125,17 +98,13 @@ def ouvrir_connexion():
     # ========================================================
     # BOUTON
     # ========================================================
-
-    bouton = ctk.CTkButton(
-        modal,
-        text="Se connecter",
-        width=150,
-        height=35,
-        fg_color="red",
-        command=connecter
-    )
-
+    bouton = ctk.CTkButton(modal,text="Se connecter",width=150,height=35,fg_color="red",command=connecter)
     bouton.pack(pady=8)
+
+
+
+
+
 
 
 # ============================================================
@@ -143,6 +112,83 @@ def ouvrir_connexion():
 # ============================================================
 fenetre.after(100,ouvrir_connexion)
 # ============================================================
+
+conteneur = ctk.CTkFrame(fenetre,fg_color="transparent")
+conteneur.pack(fill="both",expand=True,padx=20,pady=20)
+
+
+def afficher_accueil():
+
+    for widget in conteneur.winfo_children():
+        widget.destroy()
+
+    frame_accueil = ctk.CTkFrame(
+        conteneur,
+        fg_color="transparent"
+    )
+
+    frame_accueil.pack(
+        fill="both",
+        expand=True
+    )
+
+    # Liste verticale
+    bouton_profil = ctk.CTkButton(
+        frame_accueil,
+        text="Profil"
+    )
+    bouton_profil.pack(
+        fill="x",
+        pady=5
+    )
+
+    bouton_tableau = ctk.CTkButton(
+        frame_accueil,
+        text="Tableau de bord"
+    )
+    bouton_tableau.pack(
+        fill="x",
+        pady=5
+    )
+
+    bouton_verification = ctk.CTkButton(
+        frame_accueil,
+        text="Vérifications"
+    )
+    bouton_verification.pack(
+        fill="x",
+        pady=5
+    )
+
+    bouton_historique = ctk.CTkButton(
+        frame_accueil,
+        text="Historique"
+    )
+    bouton_historique.pack(
+        fill="x",
+        pady=5
+    )
+
+    bouton_parametres = ctk.CTkButton(
+        frame_accueil,
+        text="Paramètres"
+    )
+    bouton_parametres.pack(
+        fill="x",
+        pady=5
+    )
+
+    bouton_deconnexion = ctk.CTkButton(
+        frame_accueil,
+        text="Déconnexion"
+    )
+    bouton_deconnexion.pack(
+        fill="x",
+        pady=5
+    )
+
+
+
 
 
 
