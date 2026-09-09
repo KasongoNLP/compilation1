@@ -16,7 +16,7 @@ fenetre = ctk.CTk()
 
 fenetre.title("Dailly Checking")
 fenetre.geometry("800x500")
-fenetre.resizable(False, False)
+fenetre.resizable(True, True)
 
 # Icône de la fenêtre
 fenetre.iconbitmap("icone.ico")
@@ -122,6 +122,9 @@ def afficher_accueil():
     for widget in conteneur.winfo_children():
         widget.destroy()
 
+    # ========================================================
+    # STRUCTURE PRINCIPALE
+    # ========================================================
     frame_accueil = ctk.CTkFrame(
         conteneur,
         fg_color="transparent"
@@ -132,62 +135,168 @@ def afficher_accueil():
         expand=True
     )
 
-    # Liste verticale
-    bouton_profil = ctk.CTkButton(
+    # ========================================================
+    # MENU GAUCHE
+    # ========================================================
+
+    menu = ctk.CTkFrame(
         frame_accueil,
-        text="Profil"
+        width=180,
+        corner_radius=0
     )
+
+    menu.pack(
+        side="left",
+        fill="y"
+    )
+
+    menu.pack_propagate(False)
+
+    # ========================================================
+    # ZONE DE CONTENU
+    # ========================================================
+
+    contenu = ctk.CTkFrame(
+        frame_accueil,
+        fg_color="transparent"
+    )
+
+    contenu.pack(
+        side="left",
+        fill="both",
+        expand=True,
+        padx=20,
+        pady=20
+    )
+
+    # ========================================================
+    # TITRE DU MENU
+    # ========================================================
+
+    titre_menu = ctk.CTkLabel(
+        menu,
+        text="DAILLY\nCHECKING",
+        font=ctk.CTkFont(
+            size=20,
+            weight="bold"
+        )
+    )
+
+    titre_menu.pack(
+        pady=(30, 40)
+    )
+
+    # ========================================================
+    # BOUTONS DU MENU
+    # ========================================================
+
+    bouton_profil = ctk.CTkButton(
+        menu,
+        text="Profil",
+        height=40
+    )
+
     bouton_profil.pack(
         fill="x",
+        padx=15,
         pady=5
     )
 
     bouton_tableau = ctk.CTkButton(
-        frame_accueil,
-        text="Tableau de bord"
+        menu,
+        text="Tableau de bord",
+        height=40
     )
+
     bouton_tableau.pack(
         fill="x",
+        padx=15,
         pady=5
     )
 
     bouton_verification = ctk.CTkButton(
-        frame_accueil,
-        text="Vérifications"
+        menu,
+        text="Vérifications",
+        height=40
     )
+
     bouton_verification.pack(
         fill="x",
+        padx=15,
         pady=5
     )
 
     bouton_historique = ctk.CTkButton(
-        frame_accueil,
-        text="Historique"
+        menu,
+        text="Historique",
+        height=40
     )
+
     bouton_historique.pack(
         fill="x",
+        padx=15,
         pady=5
     )
 
     bouton_parametres = ctk.CTkButton(
-        frame_accueil,
-        text="Paramètres"
+        menu,
+        text="Paramètres",
+        height=40
     )
+
     bouton_parametres.pack(
         fill="x",
+        padx=15,
         pady=5
     )
 
-    bouton_deconnexion = ctk.CTkButton(
-        frame_accueil,
-        text="Déconnexion"
+    # ========================================================
+    # ESPACE AVANT DÉCONNEXION
+    # ========================================================
+
+    espace = ctk.CTkFrame(
+        menu,
+        fg_color="transparent"
     )
+
+    espace.pack(
+        fill="both",
+        expand=True
+    )
+
+    # ========================================================
+    # DÉCONNEXION
+    # ========================================================
+    bouton_deconnexion = ctk.CTkButton(
+        menu,
+        text="Déconnexion",
+        height=40,
+        fg_color="#C0392B",
+        hover_color="#922B21"
+    )
+
     bouton_deconnexion.pack(
         fill="x",
-        pady=5
+        padx=15,
+        pady=(5, 20)
     )
 
+    # ========================================================
+    # CONTENU PAR DÉFAUT
+    # ========================================================
 
+    titre = ctk.CTkLabel(
+        contenu,
+        text="Bienvenue dans Dailly Checking",
+        font=ctk.CTkFont(
+            size=28,
+            weight="bold"
+        )
+    )
+
+    titre.pack(
+        pady=40
+    )
 
 
 
