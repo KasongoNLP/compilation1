@@ -5,7 +5,7 @@ from PIL import Image
 # CONFIGURATION De l'affichage
 # ============================================================
 
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
 # ============================================================
@@ -80,7 +80,7 @@ def ouvrir_connexion():
         user = utilisateur.get()
         password = mot_de_passe.get()
 
-        if user == "admin" and password == "1234":
+        if user == "steve" and password == "steve":
 
             print("Connexion réussie")
             afficher_accueil()
@@ -107,24 +107,32 @@ def ouvrir_connexion():
 
 
 
-# ============================================================
+# ================================================================================
 # OUVRIR LE POPUP AUTOMATIQUEMENT
-# ============================================================
+# ================================================================================
 fenetre.after(100,ouvrir_connexion)
-# ============================================================
+# ================================================================================
 
-conteneur = ctk.CTkFrame(fenetre,fg_color="transparent")
-conteneur.pack(fill="both",expand=True,padx=20,pady=20)
 
+#........... Gestion de frame .................................................
+conteneur = ctk.CTkFrame(fenetre,fg_color="#F3F4F6",corner_radius=20)
+conteneur.place(x=0,y=0,relheight=1)
+#..............................................................................
+
+
+conteneur1 = ctk.CTkFrame(fenetre,fg_color="#F3F4F6",corner_radius=20, width=1500)
+conteneur1.place(x=200,y=0,relheight=1)
 
 def afficher_accueil():
 
+    # Nettoyer le conteneur principal
     for widget in conteneur.winfo_children():
         widget.destroy()
 
     # ========================================================
     # STRUCTURE PRINCIPALE
     # ========================================================
+
     frame_accueil = ctk.CTkFrame(
         conteneur,
         fg_color="transparent"
@@ -141,117 +149,203 @@ def afficher_accueil():
 
     menu = ctk.CTkFrame(
         frame_accueil,
-        width=180,
-        corner_radius=0
+        width=190,
+        corner_radius=18,
+        fg_color="white"
     )
 
-    menu.pack(
-        side="left",
-        fill="y"
+    menu.place(
+        x=0,
+        y=0,
+        relheight=1
     )
-
     menu.pack_propagate(False)
 
     # ========================================================
-    # ZONE DE CONTENU
-    # ========================================================
-
-    contenu = ctk.CTkFrame(
-        frame_accueil,
-        fg_color="transparent"
-    )
-
-    contenu.pack(
-        side="left",
-        fill="both",
-        expand=True,
-        padx=20,
-        pady=20
-    )
-
-    # ========================================================
-    # TITRE DU MENU
+    # TITRE
     # ========================================================
 
     titre_menu = ctk.CTkLabel(
         menu,
         text="DAILLY\nCHECKING",
+        text_color="#1F2937",
         font=ctk.CTkFont(
-            size=20,
+            size=19,
             weight="bold"
         )
     )
 
     titre_menu.pack(
-        pady=(30, 40)
+        pady=(22, 12)
     )
 
     # ========================================================
-    # BOUTONS DU MENU
+    # PHOTO DE PROFIL
+    # ========================================================
+
+    try:
+
+        image_profil = Image.open("profil.png")
+        image_profil = image_profil.resize((70, 70))
+
+        photo_profil = ctk.CTkImage(
+            light_image=image_profil,
+            dark_image=image_profil,
+            size=(70, 70)
+        )
+
+        label_photo = ctk.CTkLabel(
+            menu,
+            text="",
+            image=photo_profil
+        )
+
+    except Exception:
+
+        label_photo = ctk.CTkLabel(
+            menu,
+            text="S",
+            width=70,
+            height=70,
+            corner_radius=35,
+            fg_color="#E5E7EB",
+            text_color="#374151",
+            font=ctk.CTkFont(
+                size=28,
+                weight="bold"
+            )
+        )
+
+    label_photo.pack(
+        pady=(5, 5)
+    )
+
+    # ========================================================
+    # NOM UTILISATEUR
+    # ========================================================
+
+    nom_utilisateur = ctk.CTkLabel(
+        menu,
+        text="Steve",
+        text_color="#1F2937",
+        font=ctk.CTkFont(
+            size=14,
+            weight="bold"
+        )
+    )
+
+    nom_utilisateur.pack(
+        pady=(2, 18)
+    )
+
+    # ========================================================
+    # SÉPARATION
+    # ========================================================
+
+    separation = ctk.CTkFrame(
+        menu,
+        height=1,
+        fg_color="#E5E7EB"
+    )
+
+    separation.pack(
+        fill="x",
+        padx=20,
+        pady=(0, 15)
+    )
+
+    # ========================================================
+    # BOUTONS
     # ========================================================
 
     bouton_profil = ctk.CTkButton(
         menu,
         text="Profil",
-        height=40
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="transparent",
+        hover_color="#F1F5F9",
+        text_color="#374151"
     )
 
     bouton_profil.pack(
         fill="x",
-        padx=15,
-        pady=5
+        padx=12,
+        pady=3
     )
 
-    bouton_tableau = ctk.CTkButton(
+    bouton_compilation = ctk.CTkButton(
         menu,
-        text="Tableau de bord",
-        height=40
+        text="Compilation",
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="#EFF6FF",
+        hover_color="#DBEAFE",
+        text_color="#2563EB",
+        command=afficher_compilation
     )
 
-    bouton_tableau.pack(
+    bouton_compilation.pack(
         fill="x",
-        padx=15,
-        pady=5
+        padx=12,
+        pady=3
     )
 
-    bouton_verification = ctk.CTkButton(
-        menu,
-        text="Vérifications",
-        height=40
-    )
-
-    bouton_verification.pack(
-        fill="x",
-        padx=15,
-        pady=5
-    )
-
-    bouton_historique = ctk.CTkButton(
+    bouton_historyque = ctk.CTkButton(
         menu,
         text="Historique",
-        height=40
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="transparent",
+        hover_color="#F1F5F9",
+        text_color="#374151"
     )
 
-    bouton_historique.pack(
+    bouton_historyque.pack(
         fill="x",
-        padx=15,
-        pady=5
+        padx=12,
+        pady=3
     )
 
-    bouton_parametres = ctk.CTkButton(
+    bouton_setting = ctk.CTkButton(
         menu,
-        text="Paramètres",
-        height=40
+        text="Setting",
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="transparent",
+        hover_color="#F1F5F9",
+        text_color="#374151"
     )
 
-    bouton_parametres.pack(
+    bouton_setting.pack(
         fill="x",
-        padx=15,
-        pady=5
+        padx=12,
+        pady=3
+    )
+
+    bouton_email = ctk.CTkButton(
+        menu,
+        text="Email",
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="transparent",
+        hover_color="#F1F5F9",
+        text_color="#374151"
+    )
+
+    bouton_email.pack(
+        fill="x",
+        padx=12,
+        pady=3
     )
 
     # ========================================================
-    # ESPACE AVANT DÉCONNEXION
+    # ESPACE FLEXIBLE
     # ========================================================
 
     espace = ctk.CTkFrame(
@@ -267,40 +361,46 @@ def afficher_accueil():
     # ========================================================
     # DÉCONNEXION
     # ========================================================
+
     bouton_deconnexion = ctk.CTkButton(
         menu,
         text="Déconnexion",
-        height=40,
-        fg_color="#C0392B",
-        hover_color="#922B21"
+        height=38,
+        corner_radius=10,
+        anchor="w",
+        fg_color="#FEF2F2",
+        hover_color="#FEE2E2",
+        text_color="#DC2626"
     )
 
     bouton_deconnexion.pack(
         fill="x",
-        padx=15,
-        pady=(5, 20)
+        padx=5,
+        pady=(3, 18)
     )
 
-    # ========================================================
-    # CONTENU PAR DÉFAUT
-    # ========================================================
 
-    titre = ctk.CTkLabel(
-        contenu,
-        text="Bienvenue dans Dailly Checking",
+
+#Gestion de fenêtre affichage de compilation 
+def afficher_compilation():
+    # Nettoyer le conteneur principal
+    for widget in conteneur1.winfo_children():
+        widget.destroy()
+
+
+    titre_menu = ctk.CTkLabel(
+        conteneur1,
+        text="Compilation ",
+        text_color="#1F2937",
         font=ctk.CTkFont(
-            size=28,
+            size=19,
             weight="bold"
         )
     )
 
-    titre.pack(
-        pady=40
-    )
+    titre_menu.pack()
 
-
-
-
+    
 
 
 
