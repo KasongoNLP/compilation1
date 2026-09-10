@@ -614,6 +614,30 @@ def afficher_compilation():
     )
 
 
+
+    label_type = ctk.CTkLabel(
+        page,
+        text="Type de compilation",
+        font=("Arial", 14, "bold"),
+        text_color="#111827"
+    )
+    label_type.pack(anchor="w", padx=30, pady=(20, 5))
+
+    select_type = ctk.CTkComboBox(
+        page,
+        width=300,
+        height=40,
+        values=[
+            "Mouvetement",
+            "Ckeck list",
+            "Clok list"
+        ],
+        state="readonly"
+    )
+    select_type.set("Compilation simple")
+    select_type.pack(anchor="w", padx=30)
+
+
     # ========================================================
     # AFFICHER LES FICHIERS
     # ========================================================
@@ -625,9 +649,7 @@ def afficher_compilation():
 
 
         nombre = len(fichiers_selectionnes)
-
         if nombre == 0:
-
             nombre_fichiers.configure(
                 text="0 fichier"
             )
@@ -644,7 +666,6 @@ def afficher_compilation():
             message.pack(
                 pady=80
             )
-
             return
 
 
@@ -660,10 +681,7 @@ def afficher_compilation():
 
 
         for index, chemin in enumerate(fichiers_selectionnes):
-
             nom = os.path.basename(chemin)
-
-
             ligne = ctk.CTkFrame(
                 liste,
                 fg_color="white",
@@ -675,13 +693,11 @@ def afficher_compilation():
                 fill="x",
                 pady=4
             )
-
             ligne.pack_propagate(False)
 
 
             # Icône / extension
             extension = os.path.splitext(nom)[1].upper().replace(".", "")
-
             type_fichier = ctk.CTkLabel(
                 ligne,
                 text=extension,
@@ -759,6 +775,7 @@ def afficher_compilation():
 
     def lancer_la_compilation():
 
+        bouton_compiler.configure(state="disabled",text="Compilation en cours...")
         if not fichiers_selectionnes:
             messagebox.showwarning(
                 "Aucun fichier",
@@ -822,17 +839,32 @@ def afficher_compilation():
                     feuille_destination.merge_cells(str(plage))
 
                 workbook_source.close()
-
+                bouton_compiler.configure(
+                    state="normal",
+                    text="Lancer la compilation"
+                )
                 print(f"{fichier} copié")
 
             # Demander où enregistrer le résultat
+
+            type_compilation = select_type.get()
+
+            if type_compilation == "Mouvetement":
+                nom_rapport = f"DAILY REPORT Mouvetement {date.today()}.xlsx"
+
+            elif type_compilation == "Ckeck list":
+                nom_rapport = f"DAILY REPORT Ckeck list {date.today()}.xlsx"
+
+            elif type_compilation == "Clok list":
+                nom_rapport = f"DAILY REPORT Clok list {date.today()}.xlsx"
+
             chemin_final = customtkinter.filedialog.asksaveasfilename(
                 title="Enregistrer la compilation",
                 defaultextension=".xlsx",
                 filetypes=[
                     ("Fichier Excel", "*.xlsx")
                 ],
-                initialfile=f"DAILY REPORT CHECKING {date.today()}.xlsx"
+                initialfile=nom_rapport
 
             )
 
