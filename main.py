@@ -774,8 +774,19 @@ def afficher_compilation():
 
 
     def lancer_la_compilation():
+        bouton_compiler.configure(
+            state="disabled",
+            text="Compilation en cours..."
+        )
 
-        bouton_compiler.configure(state="disabled",text="Compilation en cours...")
+        barre_progression.place(relx=0.98,y=20,anchor="ne")
+        label_progression.place(relx=0.98,y=42,anchor="ne")
+
+        
+        barre_progression.set(0)
+
+
+        label_progression.configure(text="Préparation de la compilation...")
         if not fichiers_selectionnes:
             messagebox.showwarning(
                 "Aucun fichier",
@@ -790,7 +801,7 @@ def afficher_compilation():
             feuille_initiale = compilation.active
             compilation.remove(feuille_initiale)
 
-            for chemin in fichiers_selectionnes:
+            for index, chemin in enumerate(fichiers_selectionnes, start=1):
 
                 fichier = os.path.basename(chemin)
 
@@ -843,10 +854,28 @@ def afficher_compilation():
                     state="normal",
                     text="Lancer la compilation"
                 )
-                print(f"{fichier} copié")
 
+                progression = index / len(fichiers_selectionnes)
+
+                barre_progression.set(progression)
+            
+                pourcentage = int(progression * 100)
+
+                label_progression.configure(text=f"{pourcentage} %")
+                label_progression.configure(
+                    text=f"Compilation du fichier {index} sur {len(fichiers_selectionnes)}..."
+                )
+
+                page.update()
+
+                barre_progression.place_forget()
+                label_progression.place_forget()
+
+                bouton_compiler.configure(
+                    state="normal",
+                    text="Lancer la compilation"
+                )
             # Demander où enregistrer le résultat
-
             type_compilation = select_type.get()
 
             if type_compilation == "Mouvetement":
@@ -908,7 +937,26 @@ def afficher_compilation():
 
 
 
+    barre_progression = ctk.CTkProgressBar(
+        page,
+        width=500,
+        height=12,
+        corner_radius=6,
+        progress_color="#16A34A"
+    )
 
+    label_progression = ctk.CTkLabel(
+        page,
+        text="0 %",
+        font=("Arial", 12),
+        text_color="#6B7280"
+    )
+
+
+
+
+    barre_progression.pack_forget()
+    label_progression.pack_forget()
 
 
 
