@@ -4,7 +4,8 @@ from copy import copy
 from openpyxl import load_workbook, Workbook
 import customtkinter
 import os
-
+from tkinter import messagebox
+from datetime import date
 # ============================================================
 # CONFIGURATION De l'affichage
 # ============================================================
@@ -121,15 +122,10 @@ fenetre.after(100,ouvrir_connexion)
 #........... Gestion de frame .................................................
 conteneur = ctk.CTkFrame(fenetre,fg_color="#F3F4F6",corner_radius=20)
 conteneur.place(x=0,y=0,relheight=1)
+
 #..............................................................................
 conteneur1 = ctk.CTkFrame(fenetre,fg_color="#F8FAFC",corner_radius=18,border_width=1,border_color="#E5E7EB")
-
-conteneur1.place(
-    x=200,
-    y=10,
-    relwidth=0.82,
-    relheight=0.96
-)
+conteneur1.place(x=200,y=10,relwidth=0.82,relheight=0.96)
 
 def afficher_accueil():
 
@@ -397,7 +393,6 @@ def afficher_compilation():
     # ========================================================
     # NETTOYER LA ZONE DE CONTENU
     # ========================================================
-
     for widget in conteneur1.winfo_children():
         widget.destroy()
 
@@ -405,40 +400,22 @@ def afficher_compilation():
     # ========================================================
     # VARIABLES
     # ========================================================
-
     fichiers_selectionnes = []
 
 
     # ========================================================
     # CONTENEUR PRINCIPAL DE LA PAGE
     # ========================================================
+    page = ctk.CTkFrame(conteneur1,fg_color="transparent")
 
-    page = ctk.CTkFrame(
-        conteneur1,
-        fg_color="transparent"
-    )
-
-    page.pack(
-        fill="both",
-        expand=True,
-        padx=20,
-        pady=20
-    )
+    page.pack(fill="both",expand=True,padx=20,pady=20)
 
 
     # ========================================================
     # EN-TÊTE
     # ========================================================
-
-    header = ctk.CTkFrame(
-        page,
-        fg_color="transparent"
-    )
-
-    header.pack(
-        fill="x",
-        pady=(0, 15)
-    )
+    header = ctk.CTkFrame(page,fg_color="transparent")
+    header.pack(fill="x",pady=(0, 15))
 
 
     titre = ctk.CTkLabel(
@@ -474,17 +451,8 @@ def afficher_compilation():
     # ========================================================
     # BARRE D'ACTIONS
     # ========================================================
-
-    actions = ctk.CTkFrame(
-        page,
-        fg_color="white",
-        corner_radius=15
-    )
-
-    actions.pack(
-        fill="x",
-        pady=(0, 15)
-    )
+    actions = ctk.CTkFrame(page,fg_color="white",corner_radius=15)
+    actions.pack(fill="x",pady=(0, 15))
 
 
     # ========================================================
@@ -505,7 +473,6 @@ def afficher_compilation():
             return
 
         for fichier in fichiers:
-
             if fichier not in fichiers_selectionnes:
                 fichiers_selectionnes.append(fichier)
 
@@ -554,12 +521,7 @@ def afficher_compilation():
             print(f"Impossible d'ouvrir le fichier : {e}")
 
 
-    bouton_rechercher = ctk.CTkButton(
-        actions,
-        text="Ouvrir une compilation",
-        width=90,
-        height=10,
-        corner_radius=10,
+    bouton_rechercher = ctk.CTkButton(actions,text="Ouvrir une compilation",width=90,height=10,corner_radius=10,
         fg_color="#E5E7EB",
         hover_color="#D1D5DB",
         text_color="#374151",
@@ -791,6 +753,111 @@ def afficher_compilation():
     # BOUTON COMPILATION
     # ========================================================
 
+
+
+
+
+    def lancer_la_compilation():
+
+        if not fichiers_selectionnes:
+            messagebox.showwarning(
+                "Aucun fichier",
+                "Veuillez sélectionner au moins un fichier Excel."
+            )
+            return
+
+        try:
+            compilation = Workbook()
+
+            # Supprimer la feuille vide créée automatiquement
+            feuille_initiale = compilation.active
+            compilation.remove(feuille_initiale)
+
+            for chemin in fichiers_selectionnes:
+
+                fichier = os.path.basename(chemin)
+
+                workbook_source = load_workbook(chemin)
+                feuille_source = workbook_source.worksheets[0]
+
+                nom_sheet = os.path.splitext(fichier)[0]
+                nom_sheet = nom_sheet[:31]
+
+                # Éviter deux feuilles avec le même nom
+                nom_original = nom_sheet
+                compteur = 1
+
+                while nom_sheet in compilation.sheetnames:
+                    suffixe = f"_{compteur}"
+                    nom_sheet = nom_original[:31 - len(suffixe)] + suffixe
+                    compteur += 1
+
+                feuille_destination = compilation.create_sheet(nom_sheet)
+
+                # Copier les cellules
+                for ligne in feuille_source.iter_rows():
+
+                    for cellule in ligne:
+                        nouvelle_cellule = feuille_destination[cellule.coordinate]
+                        nouvelle_cellule.value = cellule.value
+
+                        if cellule.has_style:
+                            nouvelle_cellule.font = copy(cellule.font)
+                            nouvelle_cellule.fill = copy(cellule.fill)
+                            nouvelle_cellule.border = copy(cellule.border)
+                            nouvelle_cellule.alignment = copy(cellule.alignment)
+                            nouvelle_cellule.number_format = cellule.number_format
+                            nouvelle_cellule.protection = copy(cellule.protection)
+
+                # Copier largeur des colonnes
+                for colonne, dimension in feuille_source.column_dimensions.items():
+                    feuille_destination.column_dimensions[colonne].width = dimension.width
+
+                # Copier hauteur des lignes
+                for ligne, dimension in feuille_source.row_dimensions.items():
+                    feuille_destination.row_dimensions[ligne].height = dimension.height
+
+                # Copier les cellules fusionnées
+                for plage in feuille_source.merged_cells.ranges:
+                    feuille_destination.merge_cells(str(plage))
+
+                workbook_source.close()
+
+                print(f"{fichier} copié")
+
+            # Demander où enregistrer le résultat
+            chemin_final = customtkinter.filedialog.asksaveasfilename(
+                title="Enregistrer la compilation",
+                defaultextension=".xlsx",
+                filetypes=[
+                    ("Fichier Excel", "*.xlsx")
+                ],
+                initialfile=f"DAILY REPORT CHECKING {date.today()}.xlsx"
+
+            )
+
+            if not chemin_final:
+                return
+
+            compilation.save(chemin_final)
+
+            messagebox.showinfo(
+                "Compilation terminée",
+                f"La compilation a été réalisée avec succès.\n\n"
+                f"Fichiers compilés : {len(fichiers_selectionnes)}\n"
+                f"Fichier créé :\n{chemin_final}"
+            )
+
+        except Exception as erreur:
+
+            messagebox.showerror(
+                "Erreur",
+                f"Une erreur est survenue pendant la compilation :\n\n{erreur}"
+            )
+
+
+
+
     bouton_compiler = ctk.CTkButton(
         page,
         text="Lancer la compilation",
@@ -798,13 +865,20 @@ def afficher_compilation():
         height=42,
         corner_radius=10,
         fg_color="#16A34A",
-        hover_color="#15803D"
+        hover_color="#15803D",
+        command=lancer_la_compilation
     )
 
     bouton_compiler.pack(
         anchor="e",
         pady=(15, 0)
     )
+
+
+
+
+
+
 
 
     # ========================================================
@@ -815,12 +889,35 @@ def afficher_compilation():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 def afficher_historyque():
     # Nettoyer le conteneur principal
     for widget in conteneur1.winfo_children():
         widget.destroy()
 
     
+
+
+
+
+
+
+
+
+
+
 
 
 
