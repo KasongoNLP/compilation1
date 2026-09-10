@@ -1,5 +1,9 @@
 import customtkinter as ctk
 from PIL import Image
+from copy import copy
+from openpyxl import load_workbook, Workbook
+import customtkinter
+import os
 
 # ============================================================
 # CONFIGURATION De l'affichage
@@ -118,10 +122,14 @@ fenetre.after(100,ouvrir_connexion)
 conteneur = ctk.CTkFrame(fenetre,fg_color="#F3F4F6",corner_radius=20)
 conteneur.place(x=0,y=0,relheight=1)
 #..............................................................................
+conteneur1 = ctk.CTkFrame(fenetre,fg_color="#F8FAFC",corner_radius=18,border_width=1,border_color="#E5E7EB")
 
-
-conteneur1 = ctk.CTkFrame(fenetre,fg_color="#F3F4F6",corner_radius=20, width=1500)
-conteneur1.place(x=200,y=0,relheight=1)
+conteneur1.place(
+    x=200,
+    y=10,
+    relwidth=0.82,
+    relheight=0.96
+)
 
 def afficher_accueil():
 
@@ -301,7 +309,8 @@ def afficher_accueil():
         anchor="w",
         fg_color="transparent",
         hover_color="#F1F5F9",
-        text_color="#374151"
+        text_color="#374151",
+        command=afficher_historyque
     )
 
     bouton_historyque.pack(
@@ -383,22 +392,433 @@ def afficher_accueil():
 
 #Gestion de fenêtre affichage de compilation 
 def afficher_compilation():
-    # Nettoyer le conteneur principal
+
+
+    # ========================================================
+    # NETTOYER LA ZONE DE CONTENU
+    # ========================================================
+
     for widget in conteneur1.winfo_children():
         widget.destroy()
 
 
-    titre_menu = ctk.CTkLabel(
+    # ========================================================
+    # VARIABLES
+    # ========================================================
+
+    fichiers_selectionnes = []
+
+
+    # ========================================================
+    # CONTENEUR PRINCIPAL DE LA PAGE
+    # ========================================================
+
+    page = ctk.CTkFrame(
         conteneur1,
-        text="Compilation ",
+        fg_color="transparent"
+    )
+
+    page.pack(
+        fill="both",
+        expand=True,
+        padx=20,
+        pady=20
+    )
+
+
+    # ========================================================
+    # EN-TÊTE
+    # ========================================================
+
+    header = ctk.CTkFrame(
+        page,
+        fg_color="transparent"
+    )
+
+    header.pack(
+        fill="x",
+        pady=(0, 15)
+    )
+
+
+    titre = ctk.CTkLabel(
+        header,
+        text="Compilation",
         text_color="#1F2937",
         font=ctk.CTkFont(
-            size=19,
+            size=26,
             weight="bold"
         )
     )
 
-    titre_menu.pack()
+    titre.pack(
+        anchor="w"
+    )
+
+
+    description = ctk.CTkLabel(
+        header,
+        text="Sélectionnez les fichiers Excel à compiler",
+        text_color="#6B7280",
+        font=ctk.CTkFont(
+            size=13
+        )
+    )
+
+    description.pack(
+        anchor="w",
+        pady=(3, 0)
+    )
+
+
+    # ========================================================
+    # BARRE D'ACTIONS
+    # ========================================================
+
+    actions = ctk.CTkFrame(
+        page,
+        fg_color="white",
+        corner_radius=15
+    )
+
+    actions.pack(
+        fill="x",
+        pady=(0, 15)
+    )
+
+
+    # ========================================================
+    # AJOUTER DES FICHIERS
+    # ========================================================
+
+    def ajouter_fichiers():
+        fichiers = ctk.filedialog.askopenfilenames(
+            title="Sélectionner les fichiers Excel",
+            filetypes=[
+                ("Fichiers Excel", "*.xlsx *.xlsm"),
+                ("Fichiers XLSX", "*.xlsx"),
+                ("Fichiers XLSM", "*.xlsm")
+            ]
+        )
+
+        if not fichiers:
+            return
+
+        for fichier in fichiers:
+
+            if fichier not in fichiers_selectionnes:
+                fichiers_selectionnes.append(fichier)
+
+        afficher_liste_fichiers()
+
+
+    bouton_ajouter = ctk.CTkButton(
+        actions,
+        text="+  Ajouter des fichiers",
+        width=180,
+        height=40,
+        corner_radius=10,
+        fg_color="#2563EB",
+        hover_color="#1D4ED8",
+        command=ajouter_fichiers
+    )
+
+    bouton_ajouter.pack(
+        side="left",
+        padx=15,
+        pady=15
+    )
+
+
+    # ========================================================
+    # RECHERCHER UNE COMPILATION
+    # ========================================================
+
+    def rechercher_compilation():
+
+        fichier = ctk.filedialog.askopenfilename(
+            title="Rechercher une compilation",
+            filetypes=[
+                ("Fichier Excel", "*.xlsx"),
+                ("Fichier XLSM", "*.xlsm")
+            ]
+        )
+
+        if not fichier:
+            return
+
+        # Ouvrir le fichier avec l'application Excel par défaut
+        try:
+            os.startfile(fichier)
+        except Exception as e:
+            print(f"Impossible d'ouvrir le fichier : {e}")
+
+
+    bouton_rechercher = ctk.CTkButton(
+        actions,
+        text="Ouvrir une compilation",
+        width=90,
+        height=10,
+        corner_radius=10,
+        fg_color="#E5E7EB",
+        hover_color="#D1D5DB",
+        text_color="#374151",
+        command=rechercher_compilation
+    )
+
+    bouton_rechercher.pack(
+        side="left",
+        padx=5,
+        pady=15
+    )
+
+
+    # ========================================================
+    # ESPACE DES FICHIERS
+    # ========================================================
+
+    carte_fichiers = ctk.CTkFrame(
+        page,
+        fg_color="white",
+        corner_radius=15
+    )
+
+    carte_fichiers.pack(
+        fill="both",
+        expand=True
+    )
+
+
+    # ========================================================
+    # EN-TÊTE DE LA LISTE
+    # ========================================================
+
+    header_fichiers = ctk.CTkFrame(
+        carte_fichiers,
+        fg_color="transparent"
+    )
+
+    header_fichiers.pack(
+        fill="x",
+        padx=20,
+        pady=(18, 10)
+    )
+
+
+    titre_fichiers = ctk.CTkLabel(
+        header_fichiers,
+        text="Fichiers à compiler",
+        text_color="#1F2937",
+        font=ctk.CTkFont(
+            size=17,
+            weight="bold"
+        )
+    )
+
+    titre_fichiers.pack(
+        side="left"
+    )
+
+
+    nombre_fichiers = ctk.CTkLabel(
+        header_fichiers,
+        text="0 fichier",
+        text_color="#6B7280",
+        font=ctk.CTkFont(
+            size=12
+        )
+    )
+
+    nombre_fichiers.pack(
+        side="right"
+    )
+
+
+    # ========================================================
+    # ZONE SCROLLABLE
+    # ========================================================
+
+    liste = ctk.CTkScrollableFrame(
+        carte_fichiers,
+        fg_color="#F8FAFC",
+        corner_radius=10
+    )
+
+    liste.pack(
+        fill="both",
+        expand=True,
+        padx=20,
+        pady=(0, 15)
+    )
+
+
+    # ========================================================
+    # AFFICHER LES FICHIERS
+    # ========================================================
+
+    def afficher_liste_fichiers():
+
+        for widget in liste.winfo_children():
+            widget.destroy()
+
+
+        nombre = len(fichiers_selectionnes)
+
+        if nombre == 0:
+
+            nombre_fichiers.configure(
+                text="0 fichier"
+            )
+
+            message = ctk.CTkLabel(
+                liste,
+                text="Aucun fichier sélectionné\n\nCliquez sur « Ajouter des fichiers » pour commencer.",
+                text_color="#9CA3AF",
+                font=ctk.CTkFont(
+                    size=13
+                )
+            )
+
+            message.pack(
+                pady=80
+            )
+
+            return
+
+
+        if nombre == 1:
+            texte_nombre = "1 fichier"
+        else:
+            texte_nombre = f"{nombre} fichiers"
+
+
+        nombre_fichiers.configure(
+            text=texte_nombre
+        )
+
+
+        for index, chemin in enumerate(fichiers_selectionnes):
+
+            nom = os.path.basename(chemin)
+
+
+            ligne = ctk.CTkFrame(
+                liste,
+                fg_color="white",
+                corner_radius=10,
+                height=55
+            )
+
+            ligne.pack(
+                fill="x",
+                pady=4
+            )
+
+            ligne.pack_propagate(False)
+
+
+            # Icône / extension
+            extension = os.path.splitext(nom)[1].upper().replace(".", "")
+
+            type_fichier = ctk.CTkLabel(
+                ligne,
+                text=extension,
+                width=45,
+                height=30,
+                corner_radius=7,
+                fg_color="#DCFCE7",
+                text_color="#15803D",
+                font=ctk.CTkFont(
+                    size=11,
+                    weight="bold"
+                )
+            )
+
+            type_fichier.pack(
+                side="left",
+                padx=(10, 8)
+            )
+
+
+            # Nom du fichier
+            label_nom = ctk.CTkLabel(
+                ligne,
+                text=nom,
+                text_color="#374151",
+                font=ctk.CTkFont(
+                    size=13
+                ),
+                anchor="w"
+            )
+
+            label_nom.pack(
+                side="left",
+                fill="x",
+                expand=True
+            )
+
+
+            # Supprimer
+            def supprimer(index=index):
+
+                fichiers_selectionnes.pop(index)
+                afficher_liste_fichiers()
+
+
+            bouton_supprimer = ctk.CTkButton(
+                ligne,
+                text="×",
+                width=32,
+                height=32,
+                corner_radius=8,
+                fg_color="#FEF2F2",
+                hover_color="#FEE2E2",
+                text_color="#DC2626",
+                font=ctk.CTkFont(
+                    size=18,
+                    weight="bold"
+                ),
+                command=supprimer
+            )
+
+            bouton_supprimer.pack(
+                side="right",
+                padx=10
+            )
+
+
+    # ========================================================
+    # BOUTON COMPILATION
+    # ========================================================
+
+    bouton_compiler = ctk.CTkButton(
+        page,
+        text="Lancer la compilation",
+        width=200,
+        height=42,
+        corner_radius=10,
+        fg_color="#16A34A",
+        hover_color="#15803D"
+    )
+
+    bouton_compiler.pack(
+        anchor="e",
+        pady=(15, 0)
+    )
+
+
+    # ========================================================
+    # AFFICHAGE INITIAL
+    # ========================================================
+    afficher_liste_fichiers()
+
+
+
+
+def afficher_historyque():
+    # Nettoyer le conteneur principal
+    for widget in conteneur1.winfo_children():
+        widget.destroy()
 
     
 
