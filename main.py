@@ -100,6 +100,9 @@ def ouvrir_connexion():
             )
 
 
+
+
+
     # ========================================================
     # BOUTON
     # ========================================================
@@ -634,7 +637,7 @@ def afficher_compilation():
         ],
         state="readonly"
     )
-    select_type.set("Compilation simple")
+    select_type.set("Sélectionner un type")
     select_type.pack(anchor="w", padx=30)
 
 
@@ -774,6 +777,15 @@ def afficher_compilation():
 
 
     def lancer_la_compilation():
+        type_compilation = select_type.get()
+
+        if type_compilation == "Sélectionner un type":
+            messagebox.showwarning(
+                "Attention",
+                "Veuillez sélectionner un type de compilation."
+            )
+            return
+
         bouton_compiler.configure(
             state="disabled",
             text="Compilation en cours..."
@@ -867,6 +879,14 @@ def afficher_compilation():
                 )
 
                 page.update()
+
+       
+                # Vider les fichiers affichés
+                fichiers_selectionnes.clear()
+
+                # Rafraîchir la liste
+                afficher_liste_fichiers()
+                
 
                 barre_progression.place_forget()
                 label_progression.place_forget()
